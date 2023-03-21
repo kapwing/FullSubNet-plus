@@ -23,7 +23,13 @@ class BaseInferencer:
     def __init__(self, config, checkpoint_path, output_dir):
         checkpoint_path = Path(checkpoint_path).expanduser().absolute()
         root_dir = Path(output_dir).expanduser().absolute()
-        self.device = prepare_device(torch.cuda.device_count())
+        device_count = 0
+        try:
+            device_count = torch.cuda.device_count()
+        except Exception as error:
+            print(f"Unable to get device count {error}")
+        
+        self.device = prepare_device(device_count)
 
         print("Loading inference dataset...")
         self.dataloader = self._load_dataloader(config["dataset"])
