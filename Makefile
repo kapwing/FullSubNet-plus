@@ -1,4 +1,4 @@
-IMAGE := us.gcr.io/kapwing-dev/FullSubNet-plus
+IMAGE := us.gcr.io/kapwing-dev/scripts/clean-audio
 TAG := latest
 
 build:
