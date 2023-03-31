@@ -27,6 +27,7 @@ class BaseInferencer:
         try:
             device_count = torch.cuda.device_count()
         except Exception as error:
+            device_count = 0
             print(f"Unable to get device count {error}")
         
         self.device = prepare_device(device_count)
