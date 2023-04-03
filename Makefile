@@ -1,5 +1,5 @@
-# IMAGE := us.gcr.io/kapwing-dev/scripts/fullsubnet
-IMAGE = fullsubnet
+IMAGE := us.gcr.io/kapwing-dev/scripts/fullsubnet
+# IMAGE = fullsubnet
 TAG := latest
 
 build:

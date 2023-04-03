@@ -54,7 +54,8 @@ def istft(features, n_fft, hop_length, win_length, length=None, use_mag_phase=Fa
         features = torch.stack([mag * torch.cos(phase), mag * torch.sin(phase)], dim=-1)
 
     #TODO(AXIE): temporary add to see if it fixes runtime error
-    features = torch.view_as_real(features)
+    # if torch.is_complex(features):
+    #     features = torch.view_as_real(features)
 
     return torch.istft(
         features,
