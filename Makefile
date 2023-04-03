@@ -1,5 +1,5 @@
-IMAGE := us.gcr.io/kapwing-dev/scripts/fullsubnet
-# IMAGE = fullsubnet
+# IMAGE := us.gcr.io/kapwing-dev/scripts/fullsubnet
+IMAGE = fullsubnet
 TAG := latest
 
 build:
@@ -10,6 +10,6 @@ push:
 	docker push $(IMAGE):$(TAG)
 
 run:
-	docker run fullsubnet -C "./config/inference.toml" -M "./best_model.tar" -I "./input_files" -O "./output_files"
+	docker run $(IMAGE) -C "./config/inference.toml" -M "./best_model.tar" -I "./input_files" -O "./output_files"
 
 create_env_file: conda list -n speech_enhance --explicit spec-file.txt
