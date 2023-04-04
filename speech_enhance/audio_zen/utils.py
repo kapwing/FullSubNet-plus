@@ -192,7 +192,6 @@ def prepare_device(n_gpu: int, keep_reproducibility=False):
         Reproducibility: https://pytorch.org/docs/stable/notes/randomness.html
     """
     if n_gpu == 0:
-        print("AXIE 1")
         print("Using CPU in the experiment.")
         device = torch.device("cpu")
     else:
