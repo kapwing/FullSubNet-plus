@@ -21,6 +21,7 @@ print=log
 
 class BaseInferencer:
     def __init__(self, config, checkpoint_path, output_dir):
+        print(f"AXIE DEBUG: class: BaseInferencer, function: init, start")
         checkpoint_path = Path(checkpoint_path).expanduser().absolute()
         root_dir = Path(output_dir).expanduser().absolute()
         device_count = 0
@@ -65,15 +66,18 @@ class BaseInferencer:
         print(toml.dumps(config))
         with open((root_dir / f"{time.strftime('%Y-%m-%d %H:%M:%S')}.toml").as_posix(), "w") as handle:
             toml.dump(config, handle)
+        print(f"AXIE DEBUG: class: BaseInferencer, function: init, end")
 
     @staticmethod
     def _load_dataloader(dataset_config):
+        print(f"AXIE DEBUG: class: BaseInferencer, function: _load_dataloader, start")
         dataset = initialize_module(dataset_config["path"], args=dataset_config["args"], initialize=True)
         dataloader = DataLoader(
             dataset=dataset,
             batch_size=1,
             num_workers=0,
         )
+        print(f"AXIE DEBUG: class: BaseInferencer, function: _load_dataloader, end")
         return dataloader
 
     @staticmethod
@@ -87,6 +91,7 @@ class BaseInferencer:
         Returns:
             [B, N, C, F, T], F 为子频带的频率轴大小, e.g. [2, 161, 1, 19, 200]
         """
+        print(f"AXIE DEBUG: class: BaseInferencer, function: _unfold, start")
         assert input.dim() == 4, f"The dim of input is {input.dim()}, which should be 4."
         batch_size, n_channels, n_freqs, n_frames = input.size()
         output = input.reshape(batch_size * n_channels, 1, n_freqs, n_frames)
@@ -99,10 +104,12 @@ class BaseInferencer:
         # 拆分 unfold 中间的维度
         output = output.reshape(batch_size, n_channels, sub_band_n_freqs, n_frames, n_freqs)
         output = output.permute(0, 4, 1, 2, 3).contiguous()  # permute 本质上与  reshape 可是不同的 ...，得到的维度相同，但 entity 不同啊
+        print(f"AXIE DEBUG: class: BaseInferencer, function: _unfold, end")
         return output
 
     @staticmethod
     def _load_model(model_config, checkpoint_path, device):
+        print(f"AXIE DEBUG: class: BaseInferencer, function: _load_model, start")
         model = initialize_module(model_config["path"], args=model_config["args"], initialize=True)
         model_checkpoint = torch.load(checkpoint_path, map_location="cpu")
 
@@ -114,6 +121,7 @@ class BaseInferencer:
         model.load_state_dict(model_static_dict)
         model.to(device)
         model.eval()
+        print(f"AXIE DEBUG: class: BaseInferencer, function: _load_model, end")
         return model, model_checkpoint["epoch"]
         # return model
 
@@ -122,6 +130,7 @@ class BaseInferencer:
         """
         模型的输入为带噪语音的 **幅度谱**，输出同样为 **幅度谱**
         """
+        print(f"AXIE DEBUG: class: BaseInferencer, function: multi_channel_mag_to_mag, start")
         mixture_stft_coefficients = self.torch_mc_stft(noisy)
         mixture_mag = (mixture_stft_coefficients.real ** 2 + mixture_stft_coefficients.imag ** 2) ** 0.5
 
@@ -134,11 +143,12 @@ class BaseInferencer:
         enhanced = self.torch_istft(complex_tensor, length=noisy.shape[-1])
 
         enhanced = enhanced.detach().squeeze(0).cpu().numpy()
-
+        print(f"AXIE DEBUG: class: BaseInferencer, function: multi_channel_mag_to_mag, end")
         return enhanced
 
     @torch.no_grad()
     def __call__(self):
+        print(f"AXIE DEBUG: class: BaseInferencer, function: __call__, start")
         inference_type = self.inference_config["type"]
         assert inference_type in dir(self), f"Not implemented Inferencer type: {inference_type}"
 
@@ -165,3 +175,4 @@ class BaseInferencer:
             # clnsp102_traffic_248091_3_snr0_tl-21_fileid_268 => clean_fileid_0
             # name = "clean_" + "_".join(name.split("_")[-2:])
             sf.write(self.enhanced_dir / f"{name}.wav", enhanced, samplerate=self.acoustic_config["sr"])
+        print(f"AXIE DEBUG: class: BaseInferencer, function: __call__, end")

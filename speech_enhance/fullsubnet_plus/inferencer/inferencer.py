@@ -10,6 +10,7 @@ from utils.logger import log
 print=log
 
 def cumulative_norm(input):
+    print(f"AXIE DEBUG: class: None, function: cumulative_norm, start")
     eps = 1e-10
     device = input.device
     data_type = input.dtype
@@ -45,7 +46,7 @@ def cumulative_norm(input):
 
     if n_dim == 4:
         x = x.reshape(batch_size, n_channels, n_freqs, n_frames)
-
+    print(f"AXIE DEBUG: class: None, function: cumulative_norm, end")
     return x
 
 
@@ -55,6 +56,7 @@ class Inferencer(BaseInferencer):
 
     @torch.no_grad()
     def mag(self, noisy, inference_args):
+        print(f"AXIE DEBUG: class: Inferencer, function: mag, start")
         noisy_complex = self.torch_stft(noisy)
         noisy_mag, noisy_phase = mag_phase(noisy_complex)  # [B, F, T] => [B, 1, F, T]
 
@@ -62,11 +64,12 @@ class Inferencer(BaseInferencer):
 
         enhanced = self.torch_istft((enhanced_mag, noisy_phase), length=noisy.size(-1), use_mag_phase=True)
         enhanced = enhanced.detach().squeeze(0).cpu().numpy()
-
+        print(f"AXIE DEBUG: class: Inferencer, function: mag, end")
         return enhanced
 
     @torch.no_grad()
     def scaled_mask(self, noisy, inference_args):
+        print(f"AXIE DEBUG: class: Inferencer, function: scaled_mask, start")
         noisy_complex = self.torch_stft(noisy)
         noisy_mag, noisy_phase = mag_phase(noisy_complex)
 
@@ -78,11 +81,12 @@ class Inferencer(BaseInferencer):
         enhanced_complex = noisy_complex * scaled_mask
         enhanced = self.torch_istft(enhanced_complex, length=noisy.size(-1), use_mag_phase=False)
         enhanced = enhanced.detach().squeeze(0).cpu().numpy()
-
+        print(f"AXIE DEBUG: class: Inferencer, function: scaled_mask, end")
         return enhanced
 
     @torch.no_grad()
     def sub_band_crm_mask(self, noisy, inference_args):
+        print(f"AXIE DEBUG: class: Inferencer, function: sub_band_crm_mask, start")
         pad_mode = inference_args["pad_mode"]
         n_neighbor = inference_args["n_neighbor"]
 
@@ -111,10 +115,12 @@ class Inferencer(BaseInferencer):
         enhanced_real = enhanced_real.cpu().numpy()
         enhanced_imag = enhanced_imag.cpu().numpy()
         enhanced = self.librosa_istft(enhanced_real + 1j * enhanced_imag, length=len(noisy))
+        print(f"AXIE DEBUG: class: Inferencer, function: sub_band_crm_mask, end")
         return enhanced
 
     @torch.no_grad()
     def full_band_crm_mask(self, noisy, inference_args):
+        print(f"AXIE DEBUG: class: Inferencer, function: full_band_crm_mask, start")
         noisy_complex = self.torch_stft(noisy)
         noisy_mag, _ = mag_phase(noisy_complex)
 
@@ -134,11 +140,12 @@ class Inferencer(BaseInferencer):
         #
         rtf = (t2 - t1) / (len(enhanced) * 1.0 / self.acoustic_config["sr"])
         print(f"model rtf: {rtf}")
-
+        print(f"AXIE DEBUG: class: Inferencer, function: full_band_crm_mask, end")
         return enhanced
 
     @torch.no_grad()
     def mag_complex_full_band_crm_mask(self, noisy, inference_args):
+        print(f"AXIE DEBUG: class: Inferencer, function: mag_complex_full_band_crm_mask, start")
         noisy_complex = self.torch_stft(noisy)
         noisy_mag, _ = mag_phase(noisy_complex)
 
@@ -161,11 +168,12 @@ class Inferencer(BaseInferencer):
         #
         rtf = (t2 - t1) / (len(enhanced) * 1.0 / self.acoustic_config["sr"])
         print(f"model rtf: {rtf}")
-
+        print(f"AXIE DEBUG: class: Inferencer, function: mag_complex_full_band_crm_mask, end")
         return enhanced
 
     @torch.no_grad()
     def complex_full_band_crm_mask(self, noisy, inference_args):
+        print(f"AXIE DEBUG: class: Inferencer, function: complex_full_band_crm_mask, start")
         noisy_complex = self.torch_stft(noisy)
 
         noisy_input = torch.stack([noisy_complex.real, noisy_complex.imag], dim=1)
@@ -185,11 +193,12 @@ class Inferencer(BaseInferencer):
         #
         rtf = (t2 - t1) / (len(enhanced) * 1.0 / self.acoustic_config["sr"])
         print(f"model rtf: {rtf}")
-
+        print(f"AXIE DEBUG: class: Inferencer, function: complex_full_band_crm_mask, end")
         return enhanced
 
     @torch.no_grad()
     def overlapped_chunk(self, noisy, inference_args):
+        print(f"AXIE DEBUG: class: Inferencer, function: overlapped_chunk, start")
         sr = self.acoustic_config["sr"]
 
         noisy = noisy.squeeze(0)
@@ -247,12 +256,15 @@ class Inferencer(BaseInferencer):
                 enhanced = torch.cat((enhanced, cur), dim=0)
 
         enhanced = enhanced[:noisy.shape[1]]
+        print(f"AXIE DEBUG: class: Inferencer, function: overlapped_chunk, end")
         return enhanced.detach().squeeze(0).cpu().numpy()
 
     @torch.no_grad()
     def time_domain(self, noisy, inference_args):
+        print(f"AXIE DEBUG: class: Inferencer, function: time_domain, start")
         noisy = noisy.to(self.device)
         enhanced = self.model(noisy)
+        print(f"AXIE DEBUG: class: Inferencer, function: time_domain, end")
         return enhanced.detach().squeeze().cpu().numpy()
 
 
