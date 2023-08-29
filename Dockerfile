@@ -18,17 +18,18 @@ RUN wget \
     && rm -f Miniconda3-latest-Linux-x86_64.sh \
     && conda init bash \
     && . /root/.bashrc \
-    && conda create --name speech_enhance python=3.6 \
-    && conda activate speech_enhance\
-    && conda install pytorch=1.7.1 torchvision torchaudio=0.7 cudatoolkit=10.2 -c pytorch \
-    && conda install tensorboard joblib matplotlib \
-    && pip install Cython \
-    && pip install librosa pesq pypesq pystoi tqdm toml colorful mir_eval torch_complex
+    && conda create --name speech_enhance python=3.9 \
+    && conda update -n base -c defaults conda \
+    && conda activate speech_enhance \
+    && conda install pytorch=2.0.0 torchvision=0.15.0 torchaudio=2.0.0 cudatoolkit=10.2 -c pytorch \
+    && conda install tensorboard=2.11.0 matplotlib=3.7.1 \
+    && conda install joblib=1.2.0 -c conda-forge \
+    && pip install Cython==0.29.34 librosa==0.10.0.post2 pesq==0.0.4 pypesq==1.2.4 pystoi==0.3.3 tqdm==4.64.0 toml==0.10.2 colorful==0.5.5 mir_eval==0.7 torch_complex==0.4.3
 
 RUN mkdir fullsubnet/
 COPY . fullsubnet/
 WORKDIR fullsubnet
 
-ENTRYPOINT ["conda", "run", "--no-capture-output", "-n", "speech_enhance", "python", "-m", "speech_enhance.tools.inference"]
+# ENTRYPOINT ["conda", "run", "--no-capture-output", "-n", "speech_enhance", "python", "-m", "speech_enhance.tools.inference"]
 
 # conda run --no-capture-output -n speech_enhance python -m speech_enhance.tools.inference -C "./config/inference.toml" -M "./best_model.tar" -I "./input_files" -O "./output_files"
