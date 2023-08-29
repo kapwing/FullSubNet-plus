@@ -6,6 +6,12 @@ This Git repository for the official PyTorch implementation of **"[FullSubNet+: 
 📜[[Full Paper](https://arxiv.org/abs/2203.12188)] ▶[[Demo](https://hit-thusz-rookiecj.github.io/fullsubnet-plus.github.io/)] 💿[[Checkpoint](https://drive.google.com/file/d/1UJSt1G0P_aXry-u79LLU_l9tCnNa2u7C/view)]
 
 
+# Kapwing:
+1. First run `make build` to build the Docker image
+2. Then run `docker images` to list Docker images and get the ID of the Docker image just built
+3. Then run `docker run --rm -it {IMAGE_ID} /bin/bash` to run the image as a container and start a bash shell in the container
+4. Now you can try running the clean audio command from this shell. For example: `conda run --no-capture-output -n speech_enhance python -m speech_enhance.tools.inference -C "./config/inference.toml" -M "./best_model.tar" -I "./input_files" -O "./output_files"`
+
 
 ## Requirements
 
